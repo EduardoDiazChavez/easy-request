@@ -1,0 +1,1 @@
+export { formatFecha } from "./date";

@@ -1,36 +1,84 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Easy Request
 
-## Getting Started
+Aplicación para crear solicitudes de cambios en documentos, enviarlas al backend y consultar su historial. Incluye autenticación por roles (admin, supervisor, usuario normal) y registro de usuarios.
 
-First, run the development server:
+---
+
+## Tecnologías
+
+| Área           | Stack                                      |
+|----------------|--------------------------------------------|
+| Framework      | Next.js 16 (App Router)                    |
+| UI             | React 19, Tailwind CSS 4                   |
+| Formularios    | react-hook-form, Zod (@hookform/resolvers) |
+| HTTP           | Axios (baseURL configurable)              |
+| Auth           | JWT en localStorage + contexto React       |
+
+---
+
+## Requisitos
+
+- **Node.js** 18+ (recomendado 20+)
+- **Backend** en marcha y accesible (ver sección Backend)
+- **MongoDB** (Atlas o local) para el backend
+
+---
+
+## Variables de entorno
+
+Crea un archivo `.env.local` en la raíz del proyecto (o configura en tu entorno):
+
+| Variable               | Descripción                          | Ejemplo                    |
+|------------------------|--------------------------------------|----------------------------|
+| `NEXT_PUBLIC_API_URL`  | URL base del backend (API)           | `http://localhost:3000`    |
+
+Si no la defines, el frontend usa por defecto `http://localhost:3000`.
+
+---
+
+## Cómo ejecutar el proyecto
+
+### 1. Instalar dependencias
+
+```bash
+npm install
+```
+
+### 2. Arrancar el frontend
+
+En este proyecto (easy-request):
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Next.js usa el puerto **3000** por defecto. Si el backend ya está en 3000, arranca el frontend en otro puerto:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run dev -- -p 3001
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Abre en el navegador la URL que indique el comando (por ejemplo `http://localhost:3000` o `http://localhost:3001`).
 
-## Learn More
 
-To learn more about Next.js, take a look at the following resources:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Scripts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Comando        | Descripción                |
+|----------------|----------------------------|
+| `npm run dev`  | Servidor de desarrollo     |
+| `npm run build`| Build de producción        |
+| `npm run start`| Servidor de producción     |
+| `npm run lint` | Ejecutar ESLint           |
 
-## Deploy on Vercel
+## Despliegue
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Frontend:** se puede desplegar en Vercel, Netlify o similar. Configura `NEXT_PUBLIC_API_URL` con la URL del backend en producción.
+- **Backend:** despliega en tu proveedor (Railway, Render, etc.) con `MONGO_URI` y `JWT_SECRET` de producción.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Más información
+
+- [Next.js](https://nextjs.org/docs)
+- [Tailwind CSS](https://tailwindcss.com/docs)
