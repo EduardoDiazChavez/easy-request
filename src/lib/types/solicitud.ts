@@ -11,6 +11,8 @@ export interface DocumentoSolicitud {
 
 export interface Solicitud {
   _id: string;
+  /** Número de solicitud generado por el backend (ej. SL-1, SL-2). Puede no existir en datos antiguos. */
+  correlativo?: string;
   tipoAccion: "creacion" | "revision_actualizacion" | "eliminacion";
   tipoDocumento: "formulario" | "procedimiento" | "instruccion_trabajo" | "otro";
   otroEspecifique?: string | null;

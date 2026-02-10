@@ -2,16 +2,20 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Card, CardHeader, CardContent } from "@/src/components/ui";
-import { LABELS_TIPO_ACCION, LABELS_TIPO_DOCUMENTO } from "@/src/components/historial";
+import { Card, CardContent } from "@/src/components/ui";
+import {
+  SolicitudCard,
+  SolicitudDetalleModal,
+} from "@/src/components/historial";
 import { api } from "@/src/lib/api/axios";
-import { formatFecha } from "@/src/lib/utils";
 import type { Solicitud } from "@/src/lib/types/solicitud";
 
 export default function HistorialPage() {
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [solicitudSeleccionada, setSolicitudSeleccionada] =
+    useState<Solicitud | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -102,44 +106,20 @@ export default function HistorialPage() {
         <ul className="space-y-4">
           {solicitudes.map((s) => (
             <li key={s._id}>
-              <Card className="transition-shadow hover:shadow-md">
-                <CardHeader className="flex flex-row items-start justify-between gap-4">
-                  <div>
-                    <p className="font-medium text-zinc-900 dark:text-zinc-100">
-                      {LABELS_TIPO_ACCION[s.tipoAccion]} —{" "}
-                      {LABELS_TIPO_DOCUMENTO[s.tipoDocumento]}
-                      {s.tipoDocumento === "otro" && s.otroEspecifique
-                        ? ` (${s.otroEspecifique})`
-                        : ""}
-                    </p>
-                    <p className="mt-1 text-sm text-zinc-500 dark:text-zinc-400">
-                      {formatFecha(s.fechaCreacion)} · {s.documentos.length}{" "}
-                      {s.documentos.length === 1 ? "documento" : "documentos"}
-                    </p>
-                  </div>
-                </CardHeader>
-                <CardContent className="border-t border-zinc-200 pt-4 dark:border-zinc-800">
-                  <ul className="space-y-2">
-                    {s.documentos.map((doc, i) => (
-                      <li
-                        key={i}
-                        className="rounded-lg bg-zinc-50 py-2 px-3 text-sm dark:bg-zinc-800/50"
-                      >
-                        <span className="font-medium text-zinc-700 dark:text-zinc-300">
-                          {doc.codigo}
-                        </span>
-                        <span className="text-zinc-600 dark:text-zinc-400">
-                          {" "}
-                          — {doc.tituloDocumento}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+              <SolicitudCard
+                solicitud={s}
+                onClick={() => setSolicitudSeleccionada(s)}
+              />
             </li>
           ))}
         </ul>
+      )}
+
+      {solicitudSeleccionada && (
+        <SolicitudDetalleModal
+          solicitud={solicitudSeleccionada}
+          onClose={() => setSolicitudSeleccionada(null)}
+        />
       )}
     </div>
   );

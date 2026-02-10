@@ -65,6 +65,7 @@ export function FormularioSolicitud() {
   });
 
   const [showSuccess, setShowSuccess] = useState(false);
+  const [correlativoCreado, setCorrelativoCreado] = useState<string | null>(null);
   const [errorApi, setErrorApi] = useState<string | null>(null);
   const tipoAccion = watch("tipoAccion") ?? "";
   const tipoDocumento = watch("tipoDocumento") ?? "";
@@ -84,16 +85,24 @@ export function FormularioSolicitud() {
 
   async function onSubmit(data: SolicitudFormValues) {
     setErrorApi(null);
+    setCorrelativoCreado(null);
     try {
-      await api.post("/api/solicitudes", data);
+      const res = await api.post<{ correlativo?: string }>(
+        "/api/solicitudes",
+        data
+      );
       reset({
         tipoAccion: "",
         tipoDocumento: "",
         otroEspecifique: "",
         documentos: [defaultDocumento],
       });
+      setCorrelativoCreado(res.data?.correlativo ?? null);
       setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 5000);
+      setTimeout(() => {
+        setShowSuccess(false);
+        setCorrelativoCreado(null);
+      }, 5000);
     } catch (err: unknown) {
       const message =
         err && typeof err === "object" && "response" in err
@@ -131,7 +140,9 @@ export function FormularioSolicitud() {
               ✓
             </span>
             <p className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
-              La solicitud se ha registrado exitosamente.
+              {correlativoCreado
+                ? `La solicitud ${correlativoCreado} se ha registrado exitosamente.`
+                : "La solicitud se ha registrado exitosamente."}
             </p>
           </div>
         )}
@@ -363,6 +374,7 @@ export function FormularioSolicitud() {
                   documentos: [defaultDocumento],
                 });
                 setShowSuccess(false);
+                setCorrelativoCreado(null);
                 setErrorApi(null);
               }}
               disabled={isSubmitting}
