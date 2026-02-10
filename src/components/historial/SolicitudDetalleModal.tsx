@@ -144,8 +144,15 @@ export function SolicitudDetalleModal({
             <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
               Documentos ({solicitud.documentos.length})
             </h3>
-            <ul className="space-y-6">
-              {solicitud.documentos.map((doc, i) => (
+            <div
+              className={
+                solicitud.documentos.length > 2
+                  ? "max-h-[min(55vh,420px)] overflow-y-auto pr-1"
+                  : undefined
+              }
+            >
+              <ul className="space-y-6">
+                {solicitud.documentos.map((doc, i) => (
                 <li
                   key={i}
                   className="rounded-xl border border-zinc-200 bg-zinc-50/50 dark:border-zinc-700 dark:bg-zinc-800/30"
@@ -187,8 +194,9 @@ export function SolicitudDetalleModal({
                     </div>
                   </div>
                 </li>
-              ))}
-            </ul>
+                ))}
+              </ul>
+            </div>
           </section>
         </div>
       </div>
