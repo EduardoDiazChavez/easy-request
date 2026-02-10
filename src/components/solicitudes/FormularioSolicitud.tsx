@@ -33,6 +33,8 @@ const TIPOS_DOCUMENTO = [
   { value: "otro" as const, label: "Otro (especifique)" },
 ];
 
+const CODIGO_POR_DEFINIR = "Codigo por definir";
+
 const defaultDocumento = {
   codigo: "",
   tituloDocumento: "",
@@ -86,10 +88,20 @@ export function FormularioSolicitud() {
   async function onSubmit(data: SolicitudFormValues) {
     setErrorApi(null);
     setCorrelativoCreado(null);
+    const payload =
+      data.tipoAccion === "creacion"
+        ? {
+            ...data,
+            documentos: data.documentos.map((doc) => ({
+              ...doc,
+              codigo: doc.codigo?.trim() || CODIGO_POR_DEFINIR,
+            })),
+          }
+        : data;
     try {
       const res = await api.post<{ correlativo?: string }>(
         "/api/solicitudes",
-        data
+        payload
       );
       reset({
         tipoAccion: "",
@@ -298,8 +310,13 @@ export function FormularioSolicitud() {
                       <Input
                         id={`doc-${index}-codigo`}
                         label="Código"
-                        placeholder="Ej. DOC-001"
+                        placeholder={
+                          tipoAccion === "creacion"
+                            ? "En creación no se asigna código"
+                            : "Ej. DOC-001"
+                        }
                         error={errors.documentos?.[index]?.codigo?.message}
+                        disabled={tipoAccion === "creacion"}
                         {...register(`documentos.${index}.codigo`)}
                       />
                     </div>

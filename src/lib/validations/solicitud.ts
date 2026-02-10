@@ -4,10 +4,7 @@ import { z } from "zod";
  * Esquema para cada fila de la tabla de documentos.
  */
 const documentoRowSchema = z.object({
-  codigo: z
-    .string()
-    .min(1, "El código es obligatorio")
-    .max(50, "Máximo 50 caracteres"),
+  codigo: z.string().max(50, "Máximo 50 caracteres"),
   tituloDocumento: z
     .string()
     .min(1, "El título es obligatorio")
@@ -64,7 +61,19 @@ export const solicitudFormSchema = z
       message: "Especifica el tipo de documento cuando eliges 'Otro'",
       path: ["otroEspecifique"],
     }
-  );
+  )
+  .superRefine((data, ctx) => {
+    if (data.tipoAccion === "creacion") return;
+    data.documentos.forEach((doc, index) => {
+      if (!doc.codigo?.trim()) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "El código es obligatorio",
+          path: ["documentos", index, "codigo"],
+        });
+      }
+    });
+  });
 
 export type SolicitudFormValues = z.infer<typeof solicitudFormSchema>;
 export type DocumentoRow = z.infer<typeof documentoRowSchema>;
