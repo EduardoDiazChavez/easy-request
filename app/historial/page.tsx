@@ -103,7 +103,7 @@ export default function HistorialPage() {
       )}
 
       {!loading && !error && solicitudes.length > 0 && (
-        <ul className="space-y-4">
+        <ul className="space-y-5" role="list">
           {solicitudes.map((s) => (
             <li key={s._id}>
               <SolicitudCard

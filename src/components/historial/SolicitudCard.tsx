@@ -1,27 +1,29 @@
 "use client";
 
-import { Card, CardContent, CardHeader } from "@/src/components/ui";
-import { LABELS_TIPO_ACCION, LABELS_TIPO_DOCUMENTO } from "./constants";
+import { LABELS_TIPO_DOCUMENTO } from "./constants";
 import { formatFecha } from "@/src/lib/utils";
 import type { Solicitud } from "@/src/lib/types/solicitud";
 
 const BADGE_TIPO_ACCION: Record<
   Solicitud["tipoAccion"],
-  { label: string; className: string }
+  { label: string; accent: string; badge: string }
 > = {
   creacion: {
     label: "Creación",
-    className:
-      "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/40 dark:text-emerald-300",
+    accent: "bg-emerald-500",
+    badge:
+      "bg-emerald-100 text-emerald-800 dark:bg-emerald-900/50 dark:text-emerald-300",
   },
   revision_actualizacion: {
     label: "Revisión / Actualización",
-    className:
-      "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
+    accent: "bg-amber-500",
+    badge:
+      "bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300",
   },
   eliminacion: {
     label: "Eliminación",
-    className: "bg-rose-100 text-rose-800 dark:bg-rose-900/40 dark:text-rose-300",
+    accent: "bg-rose-500",
+    badge: "bg-rose-100 text-rose-800 dark:bg-rose-900/50 dark:text-rose-300",
   },
 };
 
@@ -31,16 +33,18 @@ interface SolicitudCardProps {
 }
 
 export function SolicitudCard({ solicitud, onClick }: SolicitudCardProps) {
-  const badge = BADGE_TIPO_ACCION[solicitud.tipoAccion];
+  const config = BADGE_TIPO_ACCION[solicitud.tipoAccion];
   const tipoDoc =
     solicitud.tipoDocumento === "otro" && solicitud.otroEspecifique
       ? solicitud.otroEspecifique
       : LABELS_TIPO_DOCUMENTO[solicitud.tipoDocumento];
   const previewDoc = solicitud.documentos[0];
   const correlativo = solicitud.correlativo ?? `#${solicitud._id.slice(-6)}`;
+  const hasMore = solicitud.documentos.length > 1;
+  const numDocs = solicitud.documentos.length;
 
   return (
-    <Card
+    <article
       role="button"
       tabIndex={0}
       onClick={onClick}
@@ -50,57 +54,100 @@ export function SolicitudCard({ solicitud, onClick }: SolicitudCardProps) {
           onClick();
         }
       }}
-      className="cursor-pointer transition-all hover:shadow-lg hover:border-zinc-300 dark:hover:border-zinc-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 dark:focus-visible:ring-zinc-500 focus-visible:ring-offset-2"
+      className="group relative flex overflow-hidden rounded-xl border border-zinc-200 bg-white shadow-sm transition-all hover:border-zinc-300 hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-zinc-400 focus-visible:ring-offset-2 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:border-zinc-600 dark:hover:shadow-lg cursor-pointer"
     >
-      <CardHeader className="flex flex-row items-start justify-between gap-4 border-b border-zinc-200 dark:border-zinc-800">
-        <div className="min-w-0 flex-1">
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="font-mono text-sm font-semibold text-zinc-700 dark:text-zinc-300">
+      {/* Barra de acento por tipo de acción */}
+      <div
+        className={`absolute left-0 top-0 bottom-0 w-1 shrink-0 ${config.accent}`}
+        aria-hidden
+      />
+
+      <div className="flex min-w-0 flex-1 flex-col pl-5 pr-4 pt-0">
+        {/* Zona 1: Cabecera — tipo de acción + tipo documento (izq), correlativo + botón (der) */}
+        <div className="flex items-center justify-between gap-4 border-b border-zinc-100 py-4 dark:border-zinc-800">
+          <div className="min-w-0 flex-1">
+            <p className="text-lg font-medium text-zinc-800 dark:text-zinc-200">
+              {tipoDoc}
+            </p>
+            <div className="mt-[1px]">
+              <span
+                className={`inline-flex rounded-md px-1.5 py-0.5 text-[11px] font-medium ${config.badge}`}
+              >
+                {config.label}
+              </span>
+            </div>
+          </div>
+          <div className="flex shrink-0 items-center gap-3">
+            <span className="font-mono text-lg font-bold text-zinc-900 dark:text-zinc-100">
               {correlativo}
             </span>
             <span
-              className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${badge.className}`}
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-zinc-100 text-zinc-400 transition-colors group-hover:bg-zinc-200 group-hover:text-zinc-600 dark:bg-zinc-800 dark:group-hover:bg-zinc-700 dark:group-hover:text-zinc-300"
+              aria-hidden
             >
-              {badge.label}
-            </span>
-            <span className="text-sm text-zinc-500 dark:text-zinc-400">
-              {tipoDoc}
+              <svg
+                className="h-5 w-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
             </span>
           </div>
-          <p className="mt-2 text-sm text-zinc-500 dark:text-zinc-400">
-            {formatFecha(solicitud.fechaCreacion)} · {solicitud.documentos.length}{" "}
-            {solicitud.documentos.length === 1 ? "documento" : "documentos"}
-          </p>
         </div>
-        <span
-          className="shrink-0 text-zinc-400 dark:text-zinc-500"
-          aria-hidden
-        >
-          →
-        </span>
-      </CardHeader>
-      <CardContent className="border-t-0 pt-3">
-        {previewDoc ? (
-          <div className="rounded-lg bg-zinc-50 py-2.5 px-3 dark:bg-zinc-800/50">
-            <span className="font-medium text-zinc-800 dark:text-zinc-200">
-              {previewDoc.codigo}
+
+        {/* Zona 2: Metadatos — fecha y cantidad de documentos */}
+        <div className="flex flex-wrap gap-x-6 gap-y-1 py-3 text-xs text-zinc-500 dark:text-zinc-400">
+          <span className="flex items-center gap-1.5">
+            <span className="font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+              Fecha
             </span>
-            <span className="text-zinc-600 dark:text-zinc-400">
-              {" "}
-              — {previewDoc.tituloDocumento}
+            {formatFecha(solicitud.fechaCreacion)}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+              Documentos
             </span>
-            {solicitud.documentos.length > 1 && (
-              <p className="mt-1.5 text-xs text-zinc-500 dark:text-zinc-400">
-                +{solicitud.documentos.length - 1} más
+            {numDocs} {numDocs === 1 ? "documento" : "documentos"}
+          </span>
+        </div>
+
+        {/* Zona 3: Vista previa del contenido */}
+        <div className="pb-4">
+          {previewDoc ? (
+            <div className="rounded-lg border border-zinc-200 bg-zinc-50/80 px-4 py-3 dark:border-zinc-700 dark:bg-zinc-800/40">
+              <p className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                Primer documento
               </p>
-            )}
-          </div>
-        ) : (
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">
-            Sin documentos en esta solicitud
-          </p>
-        )}
-      </CardContent>
-    </Card>
+              <p className="mt-1.5 text-sm">
+                <span className="font-semibold text-zinc-800 dark:text-zinc-200">
+                  {previewDoc.codigo}
+                </span>
+                <span className="text-zinc-600 dark:text-zinc-400">
+                  {" "}
+                  — {previewDoc.tituloDocumento}
+                </span>
+              </p>
+              {hasMore && (
+                <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+                  +{numDocs - 1} documento{numDocs > 2 ? "s" : ""} más en esta solicitud
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="rounded-lg border border-dashed border-zinc-200 py-3 px-4 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
+              Sin documentos
+            </p>
+          )}
+        </div>
+      </div>
+    </article>
   );
 }
