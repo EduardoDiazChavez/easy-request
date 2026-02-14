@@ -1,4 +1,35 @@
+"use client";
+
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { Card, CardContent } from "@/src/components/ui";
+import { useAuth } from "@/src/contexts/AuthContext";
+
 export default function Home() {
+  const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      router.replace("/login");
+    }
+  }, [authLoading, user, router]);
+
+  if (authLoading || !user) {
+    return (
+      <div className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center justify-center bg-zinc-50 px-4 py-16 dark:bg-zinc-950">
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <p className="text-zinc-500 dark:text-zinc-400">
+              Comprobando sesión…
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-[calc(100vh-3.5rem)] flex-col items-center bg-zinc-50 px-4 py-16 font-sans dark:bg-zinc-950 sm:px-6">
       <div className="mx-auto w-full max-w-2xl space-y-10 text-center">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -11,8 +11,15 @@ import { Button, Input, Card, CardHeader, CardContent } from "@/src/components/u
 
 export default function RegistroPage() {
   const router = useRouter();
-  const { register: registerUser } = useAuth();
+  const { user, isLoading: authLoading, register: registerUser } = useAuth();
   const [registerError, setRegisterError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (user) {
+      router.replace("/");
+    }
+  }, [authLoading, user, router]);
 
   const {
     register,
@@ -40,6 +47,14 @@ export default function RegistroPage() {
     } else {
       setRegisterError(result.error ?? "Error al registrarse");
     }
+  }
+
+  if (authLoading || user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-8 dark:bg-zinc-950">
+        <p className="text-zinc-500 dark:text-zinc-400">Comprobando sesión…</p>
+      </div>
+    );
   }
 
   return (

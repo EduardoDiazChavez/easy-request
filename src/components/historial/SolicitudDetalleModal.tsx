@@ -28,11 +28,14 @@ const BADGE_TIPO_ACCION: Record<
 interface SolicitudDetalleModalProps {
   solicitud: Solicitud | null;
   onClose: () => void;
+  /** Si true, se muestra "Creada por" (solo para admin/supervisor). */
+  showCreator?: boolean;
 }
 
 export function SolicitudDetalleModal({
   solicitud,
   onClose,
+  showCreator,
 }: SolicitudDetalleModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
 
@@ -136,6 +139,22 @@ export function SolicitudDetalleModal({
                   {formatFecha(solicitud.fechaCreacion)}
                 </dd>
               </div>
+              {showCreator &&
+                solicitud.creadoPor &&
+                typeof solicitud.creadoPor === "object" &&
+                "name" in solicitud.creadoPor && (
+                  <div className="sm:col-span-2">
+                    <dt className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                      Creada por
+                    </dt>
+                    <dd className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">
+                      {solicitud.creadoPor.name}{" "}
+                      <span className="text-zinc-500 dark:text-zinc-400">
+                        ({solicitud.creadoPor.email})
+                      </span>
+                    </dd>
+                  </div>
+                )}
             </dl>
           </section>
 

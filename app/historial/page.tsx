@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Card, CardContent } from "@/src/components/ui";
 import {
   SolicitudCard,
@@ -9,15 +10,26 @@ import {
 } from "@/src/components/historial";
 import { api } from "@/src/lib/api/axios";
 import type { Solicitud } from "@/src/lib/types/solicitud";
+import { useAuth } from "@/src/contexts/AuthContext";
 
 export default function HistorialPage() {
+  const router = useRouter();
+  const { user, isLoading: authLoading } = useAuth();
   const [solicitudes, setSolicitudes] = useState<Solicitud[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [solicitudSeleccionada, setSolicitudSeleccionada] =
     useState<Solicitud | null>(null);
 
+  const puedeVerTodas =
+    user?.role === "admin" || user?.role === "supervisor";
+
   useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      router.replace("/login");
+      return;
+    }
     let cancelled = false;
     api
       .get<Solicitud[]>("/api/solicitudes")
@@ -42,7 +54,21 @@ export default function HistorialPage() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [authLoading, user, router]);
+
+  if (authLoading || !user) {
+    return (
+      <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <p className="text-zinc-500 dark:text-zinc-400">
+              Comprobando sesión…
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
@@ -51,7 +77,9 @@ export default function HistorialPage() {
           Historial de solicitudes
         </h1>
         <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-          Todas las solicitudes realizadas, ordenadas por fecha (más recientes primero).
+          {puedeVerTodas
+            ? "Todas las solicitudes realizadas en el sistema, ordenadas por fecha (más recientes primero)."
+            : "Tus solicitudes realizadas, ordenadas por fecha (más recientes primero)."}
         </p>
       </div>
 
@@ -109,6 +137,7 @@ export default function HistorialPage() {
               <SolicitudCard
                 solicitud={s}
                 onClick={() => setSolicitudSeleccionada(s)}
+                showCreator
               />
             </li>
           ))}
@@ -119,6 +148,7 @@ export default function HistorialPage() {
         <SolicitudDetalleModal
           solicitud={solicitudSeleccionada}
           onClose={() => setSolicitudSeleccionada(null)}
+          showCreator
         />
       )}
     </div>

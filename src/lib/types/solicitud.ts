@@ -18,4 +18,10 @@ export interface Solicitud {
   otroEspecifique?: string | null;
   documentos: DocumentoSolicitud[];
   fechaCreacion: string;
+  /**
+   * Usuario que creó la solicitud.
+   * - Si el backend hace populate: { _id, name, email } (solo visible para admin/supervisor en UI).
+   * - Si no: puede ser el ID en string o null.
+   */
+  creadoPor?: string | { _id: string; name: string; email: string } | null;
 }

@@ -30,9 +30,21 @@ const BADGE_TIPO_ACCION: Record<
 interface SolicitudCardProps {
   solicitud: Solicitud;
   onClick: () => void;
+  /** Si true, se muestra "Creada por" (solo para admin/supervisor). */
+  showCreator?: boolean;
 }
 
-export function SolicitudCard({ solicitud, onClick }: SolicitudCardProps) {
+function getCreadorLabel(creadoPor: Solicitud["creadoPor"]): string | null {
+  if (!creadoPor || typeof creadoPor !== "object" || !("name" in creadoPor || "email" in creadoPor))
+    return null;
+  const c = creadoPor as { name?: string; email?: string };
+  const nombre = c.name?.trim() || "";
+  const email = c.email?.trim() || "";
+  if (nombre) return email ? `${nombre} (${email})` : nombre;
+  return email || null;
+}
+
+export function SolicitudCard({ solicitud, onClick, showCreator }: SolicitudCardProps) {
   const config = BADGE_TIPO_ACCION[solicitud.tipoAccion];
   const tipoDoc =
     solicitud.tipoDocumento === "otro" && solicitud.otroEspecifique
@@ -42,6 +54,7 @@ export function SolicitudCard({ solicitud, onClick }: SolicitudCardProps) {
   const correlativo = solicitud.correlativo ?? `#${solicitud._id.slice(-6)}`;
   const hasMore = solicitud.documentos.length > 1;
   const numDocs = solicitud.documentos.length;
+  const creadorLabel = getCreadorLabel(solicitud.creadoPor);
 
   return (
     <article
@@ -103,7 +116,7 @@ export function SolicitudCard({ solicitud, onClick }: SolicitudCardProps) {
           </div>
         </div>
 
-        {/* Zona 2: Metadatos — fecha y cantidad de documentos */}
+        {/* Zona 2: Metadatos — fecha, documentos y (solo admin/supervisor) creador */}
         <div className="flex flex-wrap gap-x-6 gap-y-1 py-3 text-xs text-zinc-500 dark:text-zinc-400">
           <span className="flex items-center gap-1.5">
             <span className="font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
@@ -117,6 +130,14 @@ export function SolicitudCard({ solicitud, onClick }: SolicitudCardProps) {
             </span>
             {numDocs} {numDocs === 1 ? "documento" : "documentos"}
           </span>
+          {showCreator && creadorLabel && (
+              <span className="flex items-center gap-1.5">
+                <span className="font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+                  Creada por
+                </span>
+                {creadorLabel}
+              </span>
+            )}
         </div>
 
         {/* Zona 3: Vista previa del contenido */}
