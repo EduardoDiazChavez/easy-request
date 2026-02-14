@@ -34,12 +34,17 @@ api.interceptors.request.use((config) => {
 /** Errores globales; 401 limpia sesión en cliente */
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401 && typeof window !== "undefined") {
-      localStorage.removeItem(TOKEN_STORAGE_KEY);
-      localStorage.removeItem("easy-request-user");
+  (error: unknown) => {
+    if (error && typeof error === "object" && "response" in error) {
+      const res = (error as { response?: { status?: number } }).response;
+      if (res?.status === 401 && typeof window !== "undefined") {
+        localStorage.removeItem(TOKEN_STORAGE_KEY);
+        localStorage.removeItem("easy-request-user");
+      }
     }
-    console.error("Error en la petición:", error.message);
+    const message =
+      error instanceof Error ? error.message : typeof error === "string" ? error : "Error en la petición";
+    console.error("Error en la petición:", message);
     return Promise.reject(error);
   }
 );
