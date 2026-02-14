@@ -1,9 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LABELS_TIPO_DOCUMENTO } from "./constants";
 import { formatFecha } from "@/src/lib/utils";
-import type { Solicitud } from "@/src/lib/types/solicitud";
+import type { EstatusSolicitud, Solicitud } from "@/src/lib/types/solicitud";
+import { EstatusBadge } from "./EstatusBadge";
+import { EstatusSelector } from "./EstatusSelector";
+import { updateEstatusSolicitud } from "@/src/lib/api/solicitudes";
 
 const BADGE_TIPO_ACCION: Record<
   Solicitud["tipoAccion"],
@@ -28,16 +31,24 @@ const BADGE_TIPO_ACCION: Record<
 interface SolicitudDetalleModalProps {
   solicitud: Solicitud | null;
   onClose: () => void;
-  /** Si true, se muestra "Creada por" (solo para admin/supervisor). */
+  /** Si true, se muestra "Creada por". */
   showCreator?: boolean;
+  /** Si true, se muestra selector para cambiar estatus (solo admin/supervisor). */
+  canEditEstatus?: boolean;
+  /** Se llama tras actualizar el estatus para que el padre actualice la solicitud en estado. */
+  onEstatusUpdated?: (solicitud: Solicitud) => void;
 }
 
 export function SolicitudDetalleModal({
   solicitud,
   onClose,
   showCreator,
+  canEditEstatus = false,
+  onEstatusUpdated,
 }: SolicitudDetalleModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
+  const [estatusError, setEstatusError] = useState<string | null>(null);
+  const [updatingEstatus, setUpdatingEstatus] = useState(false);
 
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
@@ -57,6 +68,25 @@ export function SolicitudDetalleModal({
   }, [onClose]);
 
   if (!solicitud) return null;
+
+  async function handleEstatusChange(newEstatus: EstatusSolicitud) {
+    const id = solicitud?._id;
+    if (!id) return;
+    setEstatusError(null);
+    setUpdatingEstatus(true);
+    try {
+      const updated = await updateEstatusSolicitud(id, newEstatus);
+      onEstatusUpdated?.(updated);
+    } catch (err: unknown) {
+      const msg =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response?: { data?: { message?: string } } }).response?.data?.message
+          : null;
+      setEstatusError(msg ?? "No se pudo actualizar el estatus.");
+    } finally {
+      setUpdatingEstatus(false);
+    }
+  }
 
   const badge = BADGE_TIPO_ACCION[solicitud.tipoAccion];
   const tipoDoc =
@@ -137,6 +167,29 @@ export function SolicitudDetalleModal({
                 </dt>
                 <dd className="mt-1 text-sm text-zinc-700 dark:text-zinc-300">
                   {formatFecha(solicitud.fechaCreacion)}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs font-medium uppercase tracking-wider text-zinc-500 dark:text-zinc-400">
+                  Estatus
+                </dt>
+                <dd className="mt-1 flex flex-wrap items-center gap-2">
+                  {canEditEstatus ? (
+                    <>
+                      <EstatusSelector
+                        value={solicitud.estatus}
+                        onChange={handleEstatusChange}
+                        isLoading={updatingEstatus}
+                      />
+                      {estatusError && (
+                        <p className="text-sm text-red-600 dark:text-red-400">
+                          {estatusError}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <EstatusBadge estatus={solicitud.estatus} size="md" />
+                  )}
                 </dd>
               </div>
               {showCreator &&

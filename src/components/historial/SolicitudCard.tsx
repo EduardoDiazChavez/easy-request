@@ -3,6 +3,7 @@
 import { LABELS_TIPO_DOCUMENTO } from "./constants";
 import { formatFecha } from "@/src/lib/utils";
 import type { Solicitud } from "@/src/lib/types/solicitud";
+import { EstatusBadge } from "./EstatusBadge";
 
 const BADGE_TIPO_ACCION: Record<
   Solicitud["tipoAccion"],
@@ -129,6 +130,12 @@ export function SolicitudCard({ solicitud, onClick, showCreator }: SolicitudCard
               Documentos
             </span>
             {numDocs} {numDocs === 1 ? "documento" : "documentos"}
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="font-medium uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
+              Estatus
+            </span>
+            <EstatusBadge estatus={solicitud.estatus} size="sm" />
           </span>
           {showCreator && creadorLabel && (
               <span className="flex items-center gap-1.5">

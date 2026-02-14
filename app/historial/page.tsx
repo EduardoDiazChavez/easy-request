@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Card, CardContent } from "@/src/components/ui";
+import { Card, CardContent, Button } from "@/src/components/ui";
 import {
   SolicitudCard,
   SolicitudDetalleModal,
@@ -11,6 +11,7 @@ import {
 import { api } from "@/src/lib/api/axios";
 import type { Solicitud } from "@/src/lib/types/solicitud";
 import { useAuth } from "@/src/contexts/AuthContext";
+import { exportSolicitudesToExcel } from "@/src/lib/types/exportSolicitudesToExcel";
 
 export default function HistorialPage() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function HistorialPage() {
   const [error, setError] = useState<string | null>(null);
   const [solicitudSeleccionada, setSolicitudSeleccionada] =
     useState<Solicitud | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   const puedeVerTodas =
     user?.role === "admin" || user?.role === "supervisor";
@@ -70,17 +72,41 @@ export default function HistorialPage() {
     );
   }
 
+  async function handleExportExcel() {
+    if (solicitudes.length === 0) return;
+    setExporting(true);
+    try {
+      await exportSolicitudesToExcel(solicitudes);
+    } finally {
+      setExporting(false);
+    }
+  }
+
   return (
     <div className="mx-auto max-w-4xl px-4 py-10 sm:px-6">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
-          Historial de solicitudes
-        </h1>
-        <p className="mt-2 text-zinc-600 dark:text-zinc-400">
-          {puedeVerTodas
-            ? "Todas las solicitudes realizadas en el sistema, ordenadas por fecha (más recientes primero)."
-            : "Tus solicitudes realizadas, ordenadas por fecha (más recientes primero)."}
-        </p>
+      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+            Historial de solicitudes
+          </h1>
+          <p className="mt-2 text-zinc-600 dark:text-zinc-400">
+            {puedeVerTodas
+              ? "Todas las solicitudes realizadas en el sistema, ordenadas por fecha (más recientes primero)."
+              : "Tus solicitudes realizadas, ordenadas por fecha (más recientes primero)."}
+          </p>
+        </div>
+        {!loading && !error && solicitudes.length > 0 && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleExportExcel}
+            disabled={exporting}
+            isLoading={exporting}
+            className="shrink-0"
+          >
+            {exporting ? "Exportando…" : "Exportar a Excel"}
+          </Button>
+        )}
       </div>
 
       {loading && (
@@ -149,6 +175,13 @@ export default function HistorialPage() {
           solicitud={solicitudSeleccionada}
           onClose={() => setSolicitudSeleccionada(null)}
           showCreator
+          canEditEstatus={puedeVerTodas}
+          onEstatusUpdated={(updated) => {
+            setSolicitudSeleccionada(updated);
+            setSolicitudes((prev) =>
+              prev.map((s) => (s._id === updated._id ? updated : s))
+            );
+          }}
         />
       )}
     </div>
