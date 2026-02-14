@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, Button } from "@/src/components/ui";
@@ -26,6 +26,26 @@ export default function HistorialPage() {
   const puedeVerTodas =
     user?.role === "admin" || user?.role === "supervisor";
 
+  const cargarSolicitudes = useCallback((): Promise<Solicitud[]> => {
+    return api
+      .get<Solicitud[]>("/api/solicitudes")
+      .then((res) => {
+        const list = Array.isArray(res.data) ? res.data : [];
+        setSolicitudes(list);
+        setError(null);
+        return list;
+      })
+      .catch((err) => {
+        const msg =
+          err.response?.data?.message ??
+          err.message ??
+          "Error al cargar las solicitudes";
+        setError(msg);
+        setSolicitudes([]);
+        return [];
+      });
+  }, []);
+
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
@@ -33,6 +53,7 @@ export default function HistorialPage() {
       return;
     }
     let cancelled = false;
+    setLoading(true);
     api
       .get<Solicitud[]>("/api/solicitudes")
       .then((res) => {
@@ -181,6 +202,14 @@ export default function HistorialPage() {
             setSolicitudes((prev) =>
               prev.map((s) => (s._id === updated._id ? updated : s))
             );
+          }}
+          onSeguimientoCreado={async () => {
+            const list = await cargarSolicitudes();
+            setSolicitudSeleccionada((prev) => {
+              if (!prev) return null;
+              const updated = list.find((s) => s._id === prev._id);
+              return updated ?? { ...prev, seguimientoCount: (prev.seguimientoCount ?? 0) + 1 };
+            });
           }}
         />
       )}

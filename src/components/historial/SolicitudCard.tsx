@@ -56,6 +56,9 @@ export function SolicitudCard({ solicitud, onClick, showCreator }: SolicitudCard
   const hasMore = solicitud.documentos.length > 1;
   const numDocs = solicitud.documentos.length;
   const creadorLabel = getCreadorLabel(solicitud.creadoPor);
+  const mostrarNotificacion =
+    solicitud.estatus !== "ejecutado" && solicitud.estatus != null;
+  const count = solicitud.seguimientoCount ?? 0;
 
   return (
     <article
@@ -92,6 +95,28 @@ export function SolicitudCard({ solicitud, onClick, showCreator }: SolicitudCard
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-3">
+            {mostrarNotificacion && (
+              <span
+                className="flex items-center gap-1 rounded-full bg-sky-100 px-2 py-1 text-xs font-medium text-sky-800 dark:bg-sky-900/60 dark:text-sky-200"
+                title="Seguimiento / notificaciones"
+              >
+                <svg
+                  className="h-4 w-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"
+                  />
+                </svg>
+                {count > 0 && <span>{count}</span>}
+              </span>
+            )}
             <span className="font-mono text-lg font-bold text-zinc-900 dark:text-zinc-100">
               {correlativo}
             </span>

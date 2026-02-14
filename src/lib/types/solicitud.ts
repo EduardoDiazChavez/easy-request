@@ -29,4 +29,21 @@ export interface Solicitud {
   creadoPor?: string | { _id: string; name: string; email: string } | null;
   /** Estatus de ejecución. Por defecto en_espera. */
   estatus?: EstatusSolicitud;
+  /** Cantidad de entradas de seguimiento (comentarios/notificaciones). Incluido por el backend en el listado. */
+  seguimientoCount?: number;
+}
+
+/** Una entrada del chat de seguimiento de una solicitud (comentario + adjuntos). */
+export interface AdjuntoSeguimiento {
+  nombreArchivo: string;
+  url: string;
+}
+
+export interface SeguimientoSolicitud {
+  _id: string;
+  solicitud: string;
+  autor: string | { _id: string; name: string; email: string };
+  texto: string;
+  adjuntos: AdjuntoSeguimiento[];
+  fecha: string;
 }
