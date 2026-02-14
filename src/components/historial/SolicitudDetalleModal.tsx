@@ -375,6 +375,7 @@ export function SolicitudDetalleModal({
                                   <li key={idx}>
                                     <a
                                       href={adj.url}
+                                      download={adj.nombreArchivo}
                                       target="_blank"
                                       rel="noopener noreferrer"
                                       className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 text-xs ${
