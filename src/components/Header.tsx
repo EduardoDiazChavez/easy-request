@@ -36,6 +36,14 @@ export function Header() {
           >
             Historial
           </Link>
+          {user?.role === "admin" && (
+            <Link
+              href="/admin/usuarios"
+              className="text-sm font-medium text-zinc-600 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+            >
+              Usuarios
+            </Link>
+          )}
           {user ? (
             <UserMenu />
           ) : (

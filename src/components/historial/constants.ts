@@ -24,3 +24,16 @@ export const ESTATUS_OPTIONS: { value: EstatusSolicitud; label: string }[] = [
   { value: "en_proceso", label: "En proceso" },
   { value: "ejecutado", label: "Ejecutado" },
 ];
+
+export const TIPO_ACCION_OPTIONS: { value: Solicitud["tipoAccion"]; label: string }[] = [
+  { value: "creacion", label: "Creación" },
+  { value: "revision_actualizacion", label: "Revisión / Actualización" },
+  { value: "eliminacion", label: "Eliminación" },
+];
+
+export const TIPO_DOCUMENTO_OPTIONS: { value: Solicitud["tipoDocumento"]; label: string }[] = [
+  { value: "formulario", label: "Formulario" },
+  { value: "procedimiento", label: "Procedimiento" },
+  { value: "instruccion_trabajo", label: "Instrucción de trabajo" },
+  { value: "otro", label: "Otro" },
+];

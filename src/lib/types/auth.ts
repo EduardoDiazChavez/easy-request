@@ -13,6 +13,12 @@ export interface User {
   role: UserRole;
 }
 
+/** Usuario tal como lo devuelve el listado de admin (incluye disabled y createdAt) */
+export interface UserAdmin extends User {
+  disabled: boolean;
+  createdAt?: string;
+}
+
 export const ROLE_LABELS: Record<UserRole, string> = {
   admin: "Administrador",
   supervisor: "Supervisor",
