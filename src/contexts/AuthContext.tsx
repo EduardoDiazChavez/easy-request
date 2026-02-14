@@ -20,6 +20,8 @@ interface AuthContextValue {
   login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   register: (payload: RegisterPayload) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
+  /** Actualiza el usuario en contexto y en localStorage (p. ej. tras editar perfil). */
+  updateUser: (user: User) => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -103,12 +105,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     clearSession();
   }, []);
 
+  const updateUser = useCallback((nextUser: User) => {
+    setUser(nextUser);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(nextUser));
+    }
+  }, []);
+
   const value: AuthContextValue = {
     user,
     isLoading,
     login,
     register,
     logout,
+    updateUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

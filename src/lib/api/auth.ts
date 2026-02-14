@@ -34,3 +34,31 @@ export async function loginUser(
   });
   return data;
 }
+
+/** Obtiene el usuario actual (requiere token) */
+export async function getMe(): Promise<User> {
+  const { data } = await api.get<User>(`${AUTH_BASE}/me`);
+  return data;
+}
+
+/** Actualiza nombre y/o email del usuario actual */
+export interface UpdateProfilePayload {
+  name?: string;
+  email?: string;
+}
+
+export async function updateProfile(payload: UpdateProfilePayload): Promise<User> {
+  const { data } = await api.patch<User>(`${AUTH_BASE}/profile`, payload);
+  return data;
+}
+
+/** Cambia la contraseña del usuario actual */
+export interface ChangePasswordPayload {
+  currentPassword: string;
+  newPassword: string;
+}
+
+export async function changePassword(payload: ChangePasswordPayload): Promise<{ message: string }> {
+  const { data } = await api.patch<{ message: string }>(`${AUTH_BASE}/change-password`, payload);
+  return data;
+}
