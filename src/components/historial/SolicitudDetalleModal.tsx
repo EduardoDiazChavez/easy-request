@@ -59,7 +59,7 @@ export function SolicitudDetalleModal({
 }: SolicitudDetalleModalProps) {
   const { user: currentUser } = useAuth();
   const overlayRef = useRef<HTMLDivElement>(null);
-  const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatEndRef = useRef<HTMLLIElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [vistaModal, setVistaModal] = useState<VistaModal>("detalle");
