@@ -2,7 +2,10 @@ import axios from "axios";
 
 /**
  * Instancia de Axios configurada para mi-proyecto-backend.
- * Backend por defecto: http://localhost:3000 (o NEXT_PUBLIC_API_URL).
+ * La URL se elige por entorno:
+ * - Desarrollo (next dev): .env.development → http://localhost:3000
+ * - Producción (next build/start): .env.production → https://easy-request-backend.onrender.com
+ * Se puede sobreescribir con NEXT_PUBLIC_API_URL en .env.local
  */
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3000";

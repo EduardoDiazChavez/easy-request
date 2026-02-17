@@ -26,13 +26,20 @@ Aplicación para crear solicitudes de cambios en documentos, enviarlas al backen
 
 ## Variables de entorno
 
-Crea un archivo `.env.local` en la raíz del proyecto (o configura en tu entorno):
+La API se elige automáticamente según el entorno:
 
-| Variable               | Descripción                          | Ejemplo                    |
-|------------------------|--------------------------------------|----------------------------|
-| `NEXT_PUBLIC_API_URL`  | URL base del backend (API)           | `http://localhost:3000`    |
+| Entorno      | Comando        | Archivo cargado      | API por defecto                              |
+|--------------|----------------|----------------------|----------------------------------------------|
+| Desarrollo   | `npm run dev`  | `.env.development`   | `http://localhost:3000` (backend local)      |
+| Producción   | `npm run build` / `npm run start` | `.env.production` | `https://easy-request-backend.onrender.com`  |
 
-Si no la defines, el frontend usa por defecto `http://localhost:3000`.
+| Variable               | Descripción                          | Ejemplo                                           |
+|------------------------|--------------------------------------|---------------------------------------------------|
+| `NEXT_PUBLIC_API_URL`  | URL base del backend (API)           | Desarrollo: `http://localhost:3000` / Producción: `https://easy-request-backend.onrender.com` |
+
+- Los archivos `.env.development` y `.env.production` están en el repo con las URLs por defecto.
+- Para sobreescribir en tu máquina (sin commitear), usa `.env.local` (desarrollo) o `.env.production.local` (producción).
+- Copia `.env.example` como referencia si creas un `.env.local` nuevo.
 
 ---
 
@@ -73,8 +80,8 @@ Abre en el navegador la URL que indique el comando (por ejemplo `http://localhos
 
 ## Despliegue
 
-- **Frontend:** se puede desplegar en Vercel, Netlify o similar. Configura `NEXT_PUBLIC_API_URL` con la URL del backend en producción.
-- **Backend:** despliega en tu proveedor (Railway, Render, etc.) con `MONGO_URI` y `JWT_SECRET` de producción.
+- **Frontend:** despliega en Vercel, Netlify o similar. En el build de producción Next.js usará `.env.production`, así que la API ya apunta a `https://easy-request-backend.onrender.com`. Si usas otra URL de backend, define `NEXT_PUBLIC_API_URL` en las variables de entorno del servicio.
+- **Backend:** ya desplegado en Render; el frontend en producción lo usa por defecto.
 
 ---
 
